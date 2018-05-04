@@ -21,13 +21,26 @@ namespace netket{
   class AbstractGraph;
   class Hypercube;
   class CustomGraph;
-  class Graph;
 }
 
 #include "abstract_graph.hh"
 #include "distance.hh"
 #include "hypercube.hh"
 #include "custom_graph.hh"
-#include "graph.cc"
+
+namespace netket{
+  class Graph: public AbstractGraph{
+    using Ptype=std::unique_ptr<AbstractGraph>;
+    Ptype g_;
+  public:
+    Graph(const json & pars);
+    int Nsites()const;
+    std::vector<std::vector<int>> AdjacencyList()const;
+    std::vector<std::vector<int>> SymmetryTable()const;
+    std::vector<std::vector<int>> Distances()const;
+    bool IsBipartite()const;
+  };
+}
+
 
 #endif

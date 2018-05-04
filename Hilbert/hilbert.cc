@@ -16,25 +16,18 @@
 #define NETKET_HILBERT_CC
 
 #include <memory>
+#include "netket.hh"
 
 namespace netket{
 
-class Hilbert:public AbstractHilbert{
-
-  using Ptype=std::unique_ptr<AbstractHilbert>;
-  Ptype h_;
-
-public:
-
-  Hilbert(){
-
+  Hilbert::Hilbert(){
   }
-
-  Hilbert(const json & pars){
+  
+  Hilbert::Hilbert(const json & pars){
     Init(pars);
   }
 
-  void Init(const json & pars){
+  void Hilbert::Init(const json & pars){
     if(!FieldExists(pars,"Hilbert")){
       cerr<<"Hilbert is not defined in the input"<<endl;
       std::abort();
@@ -60,30 +53,30 @@ public:
     }
   }
 
-  bool IsDiscrete()const{
+  bool Hilbert::IsDiscrete()const{
     return h_->IsDiscrete();
   }
 
-  int LocalSize()const{
+  int Hilbert::LocalSize()const{
     return h_->LocalSize();
   }
 
-  int Size()const{
+  int Hilbert::Size()const{
     return h_->Size();
   }
 
-  vector<double> LocalStates()const{
+  vector<double> Hilbert::LocalStates()const{
     return h_->LocalStates();
   }
 
-  void RandomVals(VectorXd & state,netket::default_random_engine & rgen)const{
+  void Hilbert::RandomVals(VectorXd & state,netket::default_random_engine & rgen)const{
     return h_->RandomVals(state,rgen);
   }
 
-  void UpdateConf(VectorXd & v,const vector<int>  & tochange,
+  void Hilbert::UpdateConf(VectorXd & v,const vector<int>  & tochange,
     const vector<double> & newconf)const{
     return h_->UpdateConf(v,tochange,newconf);
   }
-};
+
 }
 #endif

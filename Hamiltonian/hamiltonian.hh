@@ -21,7 +21,6 @@ namespace netket{
   template<class G> class Heisenberg;
   template<class G> class BoseHubbard;
   class CustomHamiltonian;
-  template<class G> class Hamiltonian;
 }
 
 #include "abstract_hamiltonian.hh"
@@ -29,5 +28,23 @@ namespace netket{
 #include "heisenberg.hh"
 #include "bosonhubbard.hh"
 #include "custom_hamiltonian.hh"
-#include "hamiltonian.cc"
+
+namespace netket{
+  class Hamiltonian:public AbstractHamiltonian{
+    using Ptype=std::unique_ptr<AbstractHamiltonian>;
+    Ptype h_;
+
+  public:
+
+    Hamiltonian(const Graph & graph,const json & pars);
+    void FindConn(const VectorXd & v,
+      vector<std::complex<double>> & mel,
+      vector<vector<int>> & connectors,
+      vector<vector<double>> & newconfs);
+
+    const Hilbert & GetHilbert()const;
+  };
+}
+
+
 #endif

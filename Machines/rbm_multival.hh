@@ -79,17 +79,8 @@ public:
   using LookupType=typename AbstractMachine<T>::LookupType;
 
 
-  template<class Ham> RbmMultival(int nh,const Ham & hamiltonian,
-    bool usea=true,bool useb=true):
-    nv_(hamiltonian.GetHilbert().Size()),usea_(usea),
-    useb_(useb),nh_(nh),hilbert_(hamiltonian.GetHilbert()),
-    ls_(hilbert_.LocalSize()){
-
-    Init();
-  }
-
   //Json constructor
-  RbmMultival(const Graph & graph,const Hamiltonian<Graph> & hamiltonian,
+  RbmMultival(const Graph & graph,const Hamiltonian & hamiltonian,
     const json & pars):
     nv_(graph.Nsites()),
     hilbert_(hamiltonian.GetHilbert()),

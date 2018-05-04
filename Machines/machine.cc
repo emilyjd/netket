@@ -18,28 +18,11 @@
 
 #include <fstream>
 #include <memory>
+#include "netket.hh"
 
 namespace netket{
 
-template<class T> class Machine:public AbstractMachine<T>{
-  using Ptype=std::unique_ptr<AbstractMachine<T>>;
-
-  Ptype m_;
-
-  const Hilbert & hilbert_;
-  const Hamiltonian<Graph> & hamiltonian_;
-
-  int mynode_;
-
-public:
-
-  using VectorType=typename AbstractMachine<T>::VectorType;
-  using MatrixType=typename AbstractMachine<T>::MatrixType;
-  using StateType=typename AbstractMachine<T>::StateType;
-  using LookupType=typename AbstractMachine<T>::LookupType;
-
-
-  Machine(const Graph & graph,const Hamiltonian<Graph> & hamiltonian,const json & pars):
+  Machine::Machine(const Graph & graph,const Hamiltonian & hamiltonian,const json & pars):
     hilbert_(hamiltonian.GetHilbert()),hamiltonian_(hamiltonian){
 
     MPI_Comm_rank(MPI_COMM_WORLD, &mynode_);
@@ -57,13 +40,13 @@ public:
     }
 
     if(pars["Machine"]["Name"]=="RbmSpin"){
-      m_=Ptype(new RbmSpin<T>(graph,hamiltonian,pars));
+      m_=Ptype(new RbmSpin<Machine::StateType>(graph,hamiltonian,pars));
     }
     else if(pars["Machine"]["Name"]=="RbmSpinSymm"){
-      m_=Ptype(new RbmSpinSymm<T>(graph,hamiltonian,pars));
+      m_=Ptype(new RbmSpinSymm<Machine::StateType>(graph,hamiltonian,pars));
     }
     else if(pars["Machine"]["Name"]=="RbmMultival"){
-      m_=Ptype(new RbmMultival<T>(graph,hamiltonian,pars));
+      m_=Ptype(new RbmMultival<Machine::StateType>(graph,hamiltonian,pars));
     }
     else{
       if(mynode_==0)
@@ -99,62 +82,51 @@ public:
   }
 
   //returns the number of variational parameters
-  int Npar()const{
+  int Machine::Npar()const{
     return m_->Npar();
   }
 
-  int Nvisible()const{
+  int Machine::Nvisible()const{
     return m_->Nvisible();
   }
 
   //Initializes Lookup tables
-  void InitLookup(const VectorXd & v,LookupType & lt){
+  void Machine::InitLookup(const VectorXd & v,LookupType & lt){
     return m_->InitLookup(v,lt);
   }
 
   //Updates Lookup tables
-  void UpdateLookup(const VectorXd & v,const vector<int>  & toflip,
+  void Machine::UpdateLookup(const VectorXd & v,const vector<int>  & toflip,
     const vector<double> & newconf,LookupType & lt){
 
     return m_->UpdateLookup(v,toflip,newconf,lt);
   }
 
-  void UpdateConf(VectorXd & v,const vector<int>  & toflip,const vector<double> & newconf){
-    return m_->UpdateConf(v,toflip,newconf);
-  }
-
-  VectorType DerLog(const VectorXd & v){
+   Machine::VectorType Machine::DerLog(const VectorXd & v){
     return m_->DerLog(v);
   }
 
-  MatrixType DerLogDiff(const VectorXd & v,
-    const vector<vector<int> >  & toflip,
-    const vector<vector<double>> & newconf){
-
-    return m_->DerLogDiff(v,toflip,newconf);
-  }
-
-  VectorType GetParameters(){
+  Machine::VectorType Machine::GetParameters(){
     return m_->GetParameters();
   }
 
-  void SetParameters(const VectorType & pars){
+  void Machine::SetParameters(const Machine::VectorType & pars){
     return m_->SetParameters(pars);
   }
 
   //Value of the logarithm of the wave-function
-  T LogVal(const VectorXd & v){
+  Machine::StateType Machine::LogVal(const VectorXd & v){
     return m_->LogVal(v);
   }
 
   //Value of the logarithm of the wave-function
   //using pre-computed look-up tables for efficiency
-  T LogVal(const VectorXd & v,LookupType & lt){
+  Machine::StateType Machine::LogVal(const VectorXd & v,LookupType & lt){
     return m_->LogVal(v,lt);
   }
 
   //Difference between logarithms of values, when one or more visible variables are being flipped
-  VectorType LogValDiff(const VectorXd & v,
+  Machine::VectorType Machine::LogValDiff(const VectorXd & v,
     const vector<vector<int> >  & toflip,
     const vector<vector<double>> & newconf){
 
@@ -163,31 +135,31 @@ public:
 
   //Difference between logarithms of values, when one or more visible variables are being flipped
   //Version using pre-computed look-up tables for efficiency on a small number of spin flips
-  T LogValDiff(const VectorXd & v,const vector<int>  & toflip,
+  Machine::StateType Machine::LogValDiff(const VectorXd & v,const vector<int>  & toflip,
       const vector<double> & newconf,const LookupType & lt){
 
     return m_->LogValDiff(v,toflip,newconf,lt);
   }
 
-  void InitRandomPars(int seed,double sigma){
+  void Machine::InitRandomPars(int seed,double sigma){
     return m_->InitRandomPars(seed,sigma);
   }
 
-  const Hilbert& GetHilbert()const{
+  const Hilbert& Machine::GetHilbert()const{
     return hilbert_;
   }
 
-  const Hamiltonian<Graph>& GetHamiltonian()const{
+  const Hamiltonian& Machine::GetHamiltonian()const{
     return hamiltonian_;
   }
 
-  void to_json(json &j)const{
+   void Machine::to_json(json &j)const{
     m_->to_json(j);
   }
 
-  void from_json(const json&j){
+   void Machine::from_json(const json&j){
     m_->from_json(j);
   }
-};
+
 }
 #endif

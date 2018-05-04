@@ -15,17 +15,11 @@
 #ifndef NETKET_SAMPLER_CC
 #define NETKET_SAMPLER_CC
 
-#include <memory>
+#include "netket.hh"
 
 namespace netket{
 
-template<class WfType> class Sampler:public AbstractSampler<WfType>{
-
-  using Ptype=std::unique_ptr<AbstractSampler<WfType>>;
-  Ptype s_;
-
-public:
-  Sampler(Graph & graph,Hamiltonian<Graph> & hamiltonian,WfType & psi,const json & pars){
+  Sampler::Sampler(Graph & graph,Hamiltonian & hamiltonian,Sampler::MachineType & psi,const json & pars){
 
     if(!FieldExists(pars,"Sampler")){
       cerr<<"Sampler is not defined in the input"<<endl;
@@ -38,25 +32,25 @@ public:
     }
 
     if(pars["Sampler"]["Name"]=="MetropolisLocal"){
-      s_=Ptype(new MetropolisLocal<WfType>(graph,psi,pars));
+      s_=Ptype(new MetropolisLocal<Sampler::MachineType>(graph,psi,pars));
     }
     else if(pars["Sampler"]["Name"]=="MetropolisLocalPt"){
-      s_=Ptype(new MetropolisLocalPt<WfType>(graph,psi,pars));
+      s_=Ptype(new MetropolisLocalPt<Sampler::MachineType>(graph,psi,pars));
     }
     else if(pars["Sampler"]["Name"]=="MetropolisExchange"){
-      s_=Ptype(new MetropolisExchange<WfType>(graph,psi,pars));
+      s_=Ptype(new MetropolisExchange<Sampler::MachineType>(graph,psi,pars));
     }
     else if(pars["Sampler"]["Name"]=="MetropolisExchangePt"){
-      s_=Ptype(new MetropolisExchangePt<WfType>(graph,psi,pars));
+      s_=Ptype(new MetropolisExchangePt<Sampler::MachineType>(graph,psi,pars));
     }
     else if(pars["Sampler"]["Name"]=="MetropolisHop"){
-      s_=Ptype(new MetropolisHop<WfType>(graph,psi,pars));
+      s_=Ptype(new MetropolisHop<Sampler::MachineType>(graph,psi,pars));
     }
     else if(pars["Sampler"]["Name"]=="MetropolisHamiltonian"){
-      s_=Ptype(new MetropolisHamiltonian<WfType,Hamiltonian<Graph>>(graph,psi,hamiltonian,pars));
+      s_=Ptype(new MetropolisHamiltonian<Sampler::MachineType,Hamiltonian>(graph,psi,hamiltonian,pars));
     }
     else if(pars["Sampler"]["Name"]=="MetropolisHamiltonianPt"){
-      s_=Ptype(new MetropolisHamiltonianPt<WfType,Hamiltonian<Graph>>(graph,psi,hamiltonian,pars));
+      s_=Ptype(new MetropolisHamiltonianPt<Sampler::MachineType,Hamiltonian>(graph,psi,hamiltonian,pars));
     }
     else{
       cout<<"Sampler not found"<<endl;
@@ -64,26 +58,24 @@ public:
     }
   }
 
-  void Reset(bool initrandom=false){
+  void Sampler::Reset(bool initrandom){
     return s_->Reset(initrandom);
   }
-  void Sweep(){
+  void Sampler::Sweep(){
     return s_->Sweep();
   }
-  VectorXd Visible(){
+  VectorXd Sampler::Visible(){
     return s_->Visible();
   }
-  void SetVisible(const VectorXd & v){
+  void Sampler::SetVisible(const VectorXd & v){
     return s_->SetVisible(v);
   }
-  WfType & Psi(){
+  Sampler::MachineType & Sampler::Psi(){
     return s_->Psi();
   }
-  VectorXd Acceptance()const{
+  VectorXd Sampler::Acceptance()const{
     return s_->Acceptance();
   }
-
-};
 }
 
 #endif

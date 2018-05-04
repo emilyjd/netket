@@ -20,6 +20,7 @@
 #include <cassert>
 #include <map>
 #include <mpi.h>
+#include "Hilbert/next_variation.hh"
 
 namespace netket{
 

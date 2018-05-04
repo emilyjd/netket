@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <map>
 #include <mpi.h>
+#include "netket.hh"
 
 namespace netket{
 
@@ -67,7 +68,7 @@ public:
     }
     else {
       if(mynode_==0){
-        cerr<<"Graph: one among Size, AdjacencyList, or Hilbert Space Size must be specified"<<endl;
+        std::cerr<<"Graph: one among Size, AdjacencyList, or Hilbert Space Size must be specified"<<std::endl;
       }
       std::abort();
     }

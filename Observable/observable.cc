@@ -18,18 +18,11 @@
 #include <vector>
 #include <string>
 
+#include "netket.hh"
+
 namespace netket{
 
-class Observable:public AbstractObservable{
-
-  using Ptype=std::unique_ptr<AbstractObservable>;
-  Ptype o_;
-
-public:
-
-  using MatType=LocalOperator::MatType;
-
-  Observable(const Hilbert & hilbert,const json & obspars){
+  Observable::Observable(const Hilbert & hilbert,const json & obspars){
 
       if(!FieldExists(obspars,"Operators")){
         cerr<<"Observable's Operators not defined"<<endl;
@@ -52,7 +45,7 @@ public:
 
   }
 
-  void FindConn(const VectorXd & v,
+  void Observable::FindConn(const VectorXd & v,
     vector<std::complex<double>> & mel,
     vector<vector<int>> & connectors,
     vector<vector<double>> & newconfs)
@@ -60,13 +53,13 @@ public:
     return o_->FindConn(v,mel,connectors,newconfs);
   }
 
-  const Hilbert & GetHilbert()const{
+  const Hilbert & Observable::GetHilbert()const{
     return o_->GetHilbert();
   }
 
-  const std::string Name()const{
+  const std::string Observable::Name()const{
     return o_->Name();
   }
-};
+
 }
 #endif

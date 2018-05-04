@@ -25,9 +25,9 @@ namespace netket{
   template<class WfType> class MetropolisHop;
   template<class WfType,class HamType> class MetropolisHamiltonian;
   template<class WfType,class HamType> class MetropolisHamiltonianPt;
-  template<class WfType> class Sampler;
 }
 
+#include "netket.hh"
 #include "abstract_sampler.hh"
 #include "metropolis_local.hh"
 #include "metropolis_exchange.hh"
@@ -36,5 +36,26 @@ namespace netket{
 #include "metropolis_hop.hh"
 #include "metropolis_hamiltonian.hh"
 #include "metropolis_hamiltonian_pt.hh"
-#include "sampler.cc"
+
+namespace netket{
+  class Sampler:public AbstractSampler<Machine>{
+
+    using MachineType=AbstractSampler<Machine>::MachineType;
+    using Ptype=std::unique_ptr<AbstractSampler<MachineType>>;
+    Ptype s_;
+
+  public:
+    Sampler(Graph & graph,Hamiltonian & hamiltonian,MachineType & psi,const json & pars);
+
+    void Reset(bool initrandom=false);
+    void Sweep();
+    VectorXd Visible();
+    void SetVisible(const VectorXd & v);
+    MachineType & Psi();
+    VectorXd Acceptance()const;
+  };
+}
+
+
+
 #endif

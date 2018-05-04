@@ -21,7 +21,6 @@ namespace netket{
   class Boson;
   class Qubit;
   class CustomHilbert;
-  class Hilbert;
   class LocalOperator;
 }
 
@@ -31,7 +30,28 @@ namespace netket{
 #include "bosons.hh"
 #include "qubits.hh"
 #include "custom_hilbert.hh"
-#include "hilbert.cc"
+
+namespace netket{
+  class Hilbert:public AbstractHilbert{
+
+    using Ptype=std::unique_ptr<AbstractHilbert>;
+    Ptype h_;
+
+  public:
+
+    Hilbert();
+    Hilbert(const json & pars);
+    void Init(const json & pars);
+    bool IsDiscrete()const;
+    int LocalSize()const;
+    int Size()const;
+    vector<double> LocalStates()const;
+    void RandomVals(VectorXd & state,netket::default_random_engine & rgen)const;
+    void UpdateConf(VectorXd & v,const vector<int>  & tochange,
+      const vector<double> & newconf)const;
+  };
+}
+
 #include "local_operator.hh"
 
 #endif

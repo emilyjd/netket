@@ -16,16 +16,11 @@
 #define NETKET_LEARNING_CC
 
 #include <memory>
+#include "netket.hh"
 
 namespace netket{
 
-template<class Ham,class Psi,class Samp,class Opt> class Learning : public AbstractLearning<Ham, Psi, Samp, Opt> {
-
-  using Ptype=std::unique_ptr<AbstractLearning<Ham, Psi, Samp, Opt>>;
-  Ptype s_;
-
-public:
-  Learning(Ham & ham, Samp & sam, Opt & opt, const json & pars){
+  Learning::Learning(const json & pars){
 
     if(!FieldExists(pars,"Learning")){
       cerr<<"Learning field is not defined in the input"<<endl;
@@ -38,7 +33,18 @@ public:
     }
 
     if(pars["Learning"]["Method"]=="Gd" || pars["Learning"]["Method"]=="Sr"){
-      s_=Ptype(new Sr<Ham,Psi,Samp,Opt>(ham,sam,opt,pars));
+
+      Graph graph(pars);
+
+      Hamiltonian hamiltonian(graph,pars);
+
+      Machine machine(graph,hamiltonian,pars);
+
+      Sampler sampler(graph,hamiltonian,machine,pars);
+
+      Stepper stepper(pars);
+
+      GroundState le(hamiltonian,sampler,stepper,pars);
     }
     else{
       cout<<"Learning method not found"<<endl;
@@ -47,37 +53,6 @@ public:
     }
   }
 
-  void Sample(double nsweeps){
-    return s_->Sample(nsweeps);
-  }
-  void SetOutName(string filebase, double freq=100){
-    return s_->SetOutName(filebase,freq);
-  }
-  void Gradient(){
-    return s_->Gradient();
-  }
-  std::complex<double> Eloc(const VectorXd & v){
-    return s_->Eloc(v);
-  }
-  double ElocMean(){
-    return s_->ElocMean();
-  }
-  double Elocvar(){
-    return s_->Elocvar();
-  }
-  void Run(double nsweeps,double niter){
-    return s_->Run(nsweeps,niter);
-  }
-  void UpdateParameters(){
-    return s_->UpdateParameters();
-  }
-  void PrintOutput(double i){
-    return s_->PrintOutput(i);
-  }
-  void CheckDerLog(double eps=1.0e-4){
-    return s_->CheckDerLog(eps);
-  }
-};
 }
 
 #endif

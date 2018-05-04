@@ -17,7 +17,7 @@
 
 /** @defgroup machines Machines module
  *
- * Machines module contains implementations of wave-functions. 
+ * Machines module contains implementations of wave-functions.
  */
 
 namespace netket{
@@ -25,15 +25,78 @@ namespace netket{
   template<class T> class RbmSpin;
   template<class T> class RbmSpinSymm;
   template<class T> class RbmMultival;
-
-  template<class T> class Machine;
 }
 
+#include "netket.hh"
 #include "abstract_machine.hh"
-
 #include "rbm_spin.hh"
 #include "rbm_spin_symm.hh"
 #include "rbm_multival.hh"
 
-#include "machine.cc"
+
+namespace netket{
+
+  class Machine:public AbstractMachine<std::complex<double>>{
+    using Ptype=std::unique_ptr<AbstractMachine<std::complex<double>>>;
+
+    Ptype m_;
+
+    const Hilbert & hilbert_;
+    const Hamiltonian & hamiltonian_;
+
+    int mynode_;
+
+  public:
+
+    using VectorType=typename AbstractMachine<std::complex<double>>::VectorType;
+    using MatrixType=typename AbstractMachine<std::complex<double>>::MatrixType;
+    using StateType=typename AbstractMachine<std::complex<double>>::StateType;
+    using LookupType=typename AbstractMachine<std::complex<double>>::LookupType;
+
+
+    Machine(const Graph & graph,const Hamiltonian & hamiltonian,const json & pars);
+
+    int Npar()const;
+    int Nvisible()const;
+    void InitLookup(const VectorXd & v,LookupType & lt);
+
+    void UpdateLookup(const VectorXd & v,const vector<int>  & toflip,
+      const vector<double> & newconf,LookupType & lt);
+
+    void UpdateConf(VectorXd & v,const vector<int>  & toflip,const vector<double> & newconf);
+
+    VectorType DerLog(const VectorXd & v);
+
+    MatrixType DerLogDiff(const VectorXd & v,
+      const vector<vector<int> >  & toflip,
+      const vector<vector<double>> & newconf);
+
+    VectorType GetParameters();
+
+    void SetParameters(const VectorType & pars);
+
+    StateType LogVal(const VectorXd & v);
+
+    StateType LogVal(const VectorXd & v,LookupType & lt);
+
+    VectorType LogValDiff(const VectorXd & v,
+      const vector<vector<int> >  & toflip,
+      const vector<vector<double>> & newconf);
+
+    StateType LogValDiff(const VectorXd & v,const vector<int>  & toflip,
+        const vector<double> & newconf,const LookupType & lt);
+
+    void InitRandomPars(int seed,double sigma);
+
+    const Hilbert& GetHilbert()const;
+
+    const Hamiltonian& GetHamiltonian()const;
+
+    void to_json(json &j)const;
+
+    void from_json(const json&j);
+  };
+
+}
+
 #endif

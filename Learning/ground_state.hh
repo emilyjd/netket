@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef NETKET_SR_HH
-#define NETKET_SR_HH
+#ifndef NETKET_GROUNDSTATE_HH
+#define NETKET_GROUNDSTATE_HH
 
 #include <iostream>
 #include <iomanip>
@@ -25,22 +25,26 @@
 #include <string>
 #include <vector>
 #include <mpi.h>
+#include "netket.hh"
 
 namespace netket{
 
 using namespace std;
 using namespace Eigen;
 
-//Stochastic reconfiguration optimizer
-//both direct and sparse version available
-template<class Ham,class Psi,class Samp,class Opt> class Sr : public AbstractLearning<Ham, Psi, Samp, Opt>{
+//Learning schemes for the ground state
+//Available methods:
+//1) Stochastic reconfiguration optimizer
+//   both direct and sparse version
+//2) Gradient Descent optimizer
+class GroundState {
 
-  typedef Matrix<typename Psi::StateType, Dynamic, 1 > VectorT;
-  typedef Matrix<typename Psi::StateType, Dynamic, Dynamic > MatrixT;
+  typedef Matrix<typename Machine::StateType, Dynamic, 1 > VectorT;
+  typedef Matrix<typename Machine::StateType, Dynamic, Dynamic > MatrixT;
 
-  Ham & ham_;
-  Samp & sampler_;
-  Psi & psi_;
+  Hamiltonian & ham_;
+  Sampler & sampler_;
+  Machine & psi_;
 
   vector<vector<int>> connectors_;
   vector<vector<double>> newconfs_;
@@ -72,7 +76,7 @@ template<class Ham,class Psi,class Samp,class Opt> class Sr : public AbstractLea
   string filewfname_;
   double freqbackup_;
 
-  Opt & opt_;
+  Stepper & opt_;
 
   Observables obs_;
   ObsManager obsmanager_;
@@ -82,14 +86,8 @@ template<class Ham,class Psi,class Samp,class Opt> class Sr : public AbstractLea
 
 public:
 
-  Sr(Ham & ham,Samp & sampler,Opt & opt):
-  ham_(ham),sampler_(sampler),psi_(sampler.Psi()),opt_(opt){
-
-    Init();
-  }
-
   //JSON constructor
-  Sr(Ham & ham, Samp & sampler, Opt & opt,const json & pars):
+  GroundState(Hamiltonian & ham, Sampler & sampler, Stepper & opt,const json & pars):
   ham_(ham),sampler_(sampler),psi_(sampler.Psi()),opt_(opt),
   obs_(ham.GetHilbert(),pars){
 
@@ -412,15 +410,15 @@ public:
     for(int i=0;i<npar_;i++){
       pars(i)+=eps;
       psi_.SetParameters(pars);
-      typename Psi::StateType valp=psi_.LogVal(sampler_.Visible());
+      typename Machine::StateType valp=psi_.LogVal(sampler_.Visible());
 
       pars(i)-=2*eps;
       psi_.SetParameters(pars);
-      typename Psi::StateType valm=psi_.LogVal(sampler_.Visible());
+      typename Machine::StateType valm=psi_.LogVal(sampler_.Visible());
 
       pars(i)+=eps;
 
-      typename Psi::StateType numder=(-valm+valp)/(eps*2);
+      typename Machine::StateType numder=(-valm+valp)/(eps*2);
 
       if(std::abs(numder-ders(i))>eps*eps){
         cerr<<" Possible error on parameter "<<i<<". Expected: "<<ders(i)<<" Found: "<<numder<<endl;

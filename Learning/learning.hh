@@ -21,23 +21,44 @@ namespace netket{
   class AdaDelta;
   class AdaMax;
   class Rprop;
-  class Stepper;
-  template<class Hamiltonian,class Psi,class Sampler,class Optimizer> class Sr;
-  class MatrixReplacement;
 
-  template<class Hamiltonian,class Psi,class Sampler,class Opt> class AbstractLearning;
-  template<class Hamiltonian,class Psi,class Sampler,class Opt> class Learning;
+  class GroundState;
+  class MatrixReplacement;
 }
 
+#include "netket.hh"
 #include "abstract_stepper.hh"
-#include "abstract_learning.hh"
+
 #include "sgd.hh"
 #include "ada_delta.hh"
 #include "ada_max.hh"
 #include "rprop.hh"
-#include "stepper.cc"
+
+
+
+namespace netket{
+  class Stepper:public AbstractStepper{
+    using Ptype=std::unique_ptr<AbstractStepper>;
+    Ptype s_;
+  public:
+    Stepper(const json & pars);
+    void Init(const VectorXd & pars);
+    void Init(const VectorXcd & pars);
+    void Update(const VectorXd & grad,VectorXd & pars);
+    void Update(const VectorXcd & grad,VectorXd & pars);
+    void Update(const VectorXcd & grad,VectorXcd & pars);
+    void Reset();
+  };
+
+  class Learning {
+  public:
+    Learning(const json & pars);
+  };
+
+}
+
 #include "matrix_replacement.hh"
-#include "sr.hh"
-#include "learning.cc"
+#include "ground_state.hh"
+
 
 #endif

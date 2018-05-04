@@ -21,6 +21,7 @@
 #include <complex>
 #include <vector>
 #include <mpi.h>
+#include "netket.hh"
 
 namespace netket{
 

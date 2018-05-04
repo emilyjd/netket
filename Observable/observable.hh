@@ -18,12 +18,39 @@
 namespace netket{
   class AbstractObservable;
   class CustomObservable;
-  class Observable;
   class Observables;
 }
 
+#include "netket.hh"
 #include "abstract_observable.hh"
 #include "custom_observable.hh"
-#include "observable.cc"
+
+namespace netket{
+
+  class Observable:public AbstractObservable{
+
+    using Ptype=std::unique_ptr<AbstractObservable>;
+    Ptype o_;
+
+  public:
+
+    using MatType=LocalOperator::MatType;
+
+    Observable(const Hilbert & hilbert,const json & obspars);
+
+    void FindConn(const VectorXd & v,
+      vector<std::complex<double>> & mel,
+      vector<vector<int>> & connectors,
+      vector<vector<double>> & newconfs);
+
+    const Hilbert & GetHilbert()const;
+
+    const std::string Name()const;
+  };
+
+}
+
 #include "observables.hh"
+
+
 #endif

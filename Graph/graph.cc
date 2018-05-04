@@ -18,16 +18,11 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include "netket.hh"
 
 namespace netket{
 
-class Graph:public AbstractGraph{
-
-  using Ptype=std::unique_ptr<AbstractGraph>;
-  Ptype g_;
-
-public:
-  Graph(const json & pars){
+  Graph::Graph(const json & pars){
 
     //Check if a graph is explicitely defined in the input
     if(FieldExists(pars,"Graph")){
@@ -53,23 +48,21 @@ public:
     }
   }
 
-  int Nsites()const{
+  int Graph::Nsites()const{
     return g_->Nsites();
   }
-  std::vector<std::vector<int>> AdjacencyList()const{
+  std::vector<std::vector<int>> Graph::AdjacencyList()const{
     return g_->AdjacencyList();
   }
-  std::vector<std::vector<int>> SymmetryTable()const{
+  std::vector<std::vector<int>> Graph::SymmetryTable()const{
     return g_->SymmetryTable();
   }
-  std::vector<std::vector<int>> Distances()const{
+  std::vector<std::vector<int>> Graph::Distances()const{
     return g_->Distances();
   }
-  bool IsBipartite()const{
+  bool Graph::IsBipartite()const{
     return g_->IsBipartite();
   }
-
-};
 }
 
 #endif

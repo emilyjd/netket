@@ -17,6 +17,7 @@
 
 #include <vector>
 #include <string>
+#include "netket.hh"
 
 namespace netket{
 
@@ -36,7 +37,6 @@ public:
       if(obspar.is_array()){
         //multiple observables case
         for(int i=0;i<obspar.size();i++){
-
           observables_.push_back(Observable(hilbert,obspar[i]));
         }
       }
