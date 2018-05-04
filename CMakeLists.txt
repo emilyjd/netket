@@ -17,7 +17,7 @@ include_directories(${MPI_INCLUDE_PATH})
 include_directories(${NETKET_SOURCE_DIR})
 
 include_directories (${EIGEN3_INCLUDE_DIR})
-# include_directories (${JSON_INCLUDE_DIR})
+include_directories (${JSON_INCLUDE_DIR})
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
