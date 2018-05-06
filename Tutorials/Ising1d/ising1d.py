@@ -52,8 +52,8 @@ pars['Learning']={
     'NiterOpt'       : 500,
     'Diagshift'      : 0.1,
     'UseIterative'   : False,
-    'OutputFile'     : "test",
-    'StepperType'    : 'Sgd',
+    'OutputFile'     : "rms_prop_test",
+    'StepperType'    : 'RMSProp',
     'LearningRate'   : 0.1,
 }
 

@@ -12,32 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef NETKET_ADADELTA_HH
-#define NETKET_ADADELTA_HH
+#ifndef NETKET_MOMENTUM_HH
+#define NETKET_MOMENTUM_HH
 
 #include <iostream>
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include <cassert>
 #include <cmath>
+#include <complex>
 
 namespace netket{
 
 using namespace std;
 using namespace Eigen;
 
-class AdaDelta: public AbstractStepper{
+class Momentum: public AbstractStepper{
 
   int npar_;
 
-  //decay constant
-  double rho_;
+  double eta_;
+  double beta_;
 
-  //small parameter
-  double eps_;
-
-  VectorXd Eg2_;
-  VectorXd Edx2_;
+  VectorXd mt_;
 
   int mynode_;
 
@@ -45,17 +42,18 @@ class AdaDelta: public AbstractStepper{
 
 public:
 
-  AdaDelta(double rho=0.95,double eps=1.0e-6):
-  rho_(rho),eps_(eps),I_(0,1){
+  Momentum(double eta,double beta=0.9):
+    eta_(eta),beta_(beta)
+  {
     npar_=-1;
 
     PrintParameters();
   }
 
   //Json constructor
-  AdaDelta(const json & pars):
-    rho_(FieldOrDefaultVal(pars["Learning"],"rho",0.95)),
-    eps_(FieldOrDefaultVal(pars["Learning"],"eps",1.0e-6)),
+  Momentum(const json & pars):
+    eta_(FieldVal(pars["Learning"],"LearningRate")),
+    beta_(FieldOrDefaultVal(pars["Learning"],"Beta",0.9)),
     I_(0,1)
   {
     npar_=-1;
@@ -66,43 +64,33 @@ public:
   void PrintParameters(){
     MPI_Comm_rank(MPI_COMM_WORLD, &mynode_);
     if(mynode_==0){
-      cout<<"# AdaDelta stepper initialized with these parameters : "<<endl;
-      cout<<"# Rho = "<<rho_<<endl;
-      cout<<"# Eps = "<<eps_<<endl;
+      cout<<"# Momentum stepper initialized with these parameters : "<<endl;
+      cout<<"# Learning Rate (Alpha) = "<<eta_<<endl;
+      cout<<"# Beta = "<<beta_<<endl;
     }
   }
 
   void Init(const VectorXd & pars){
 
     npar_=pars.size();
-    Eg2_.setZero(npar_);
-    Edx2_.setZero(npar_);
-
+    mt_.setZero(npar_);
   }
 
   void Init(const VectorXcd & pars){
 
     npar_=2*pars.size();
-    Eg2_.setZero(npar_);
-    Edx2_.setZero(npar_);
-
+    mt_.setZero(npar_);
   }
 
   void Update(const VectorXd & grad,VectorXd & pars){
+
     assert(npar_>0);
 
-    Eg2_=rho_*Eg2_+(1.-rho_)*grad.cwiseAbs2();
-
-    VectorXd Dx(npar_);
+    mt_=beta_*mt_+(1.-beta_)*grad;
 
     for(int i=0;i<npar_;i++){
-      Dx(i)=-std::sqrt(Edx2_(i)+eps_)*grad(i);
-      Dx(i)/=std::sqrt(Eg2_(i)+eps_);
-      pars(i)+=Dx(i);
+      pars(i)-=eta_*mt_(i);
     }
-
-    Edx2_=rho_*Edx2_+(1.-rho_)*Dx.cwiseAbs2();
-
   }
 
   void Update(const VectorXcd & grad,VectorXd & pars){
@@ -113,30 +101,23 @@ public:
 
     assert(npar_==2*pars.size());
 
-    VectorXd Dx(npar_);
+    for(int i=0;i<pars.size();i++){
+      mt_(2*i)=beta_*mt_(2*i)+(1.-beta_)*grad(i).real();
+      mt_(2*i+1)=beta_*mt_(2*i+1)+(1.-beta_)*grad(i).imag();
+    }
 
     for(int i=0;i<pars.size();i++){
-      Eg2_(2*i)=rho_*Eg2_(2*i)+(1.-rho_)*std::pow(grad(i).real(),2);
-      Eg2_(2*i+1)=rho_*Eg2_(2*i+1)+(1.-rho_)*std::pow(grad(i).imag(),2);
-
-      Dx(2*i)=-std::sqrt(Edx2_(2*i)+eps_)*grad(i).real();
-      Dx(2*i+1)=-std::sqrt(Edx2_(2*i+1)+eps_)*grad(i).imag();
-      Dx(2*i)/=std::sqrt(Eg2_(2*i)+eps_);
-      Dx(2*i+1)/=std::sqrt(Eg2_(2*i+1)+eps_);
-
-      pars(i)+=Dx(2*i);
-      pars(i)+=I_*Dx(2*i+1);
-
-      Edx2_(2*i)=rho_*Edx2_(2*i)+(1.-rho_)*std::pow(Dx(2*i),2);
-      Edx2_(2*i+1)=rho_*Edx2_(2*i+1)+(1.-rho_)*std::pow(Dx(2*i+1),2);
+      pars(i)-=eta_*mt_(2*i);
+      pars(i)-=eta_*I_*mt_(2*i+1);
     }
   }
 
   void Reset(){
-    Eg2_=VectorXd::Zero(npar_);
-    Edx2_=VectorXd::Zero(npar_);
+    mt_=VectorXd::Zero(npar_);
   }
+
 };
+
 
 }
 

@@ -10,7 +10,7 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the License. 
+// limitations under the License.
 
 #ifndef NETKET_STEPPER_CC
 #define NETKET_STEPPER_CC
@@ -40,6 +40,15 @@ public:
     }
     else if(pars["Learning"]["StepperType"]=="AdaMax"){
       s_=new AdaMax(pars);
+    }
+    else if(pars["Learning"]["StepperType"]=="Momentum"){
+      s_=new Momentum(pars);
+    }
+    else if(pars["Learning"]["StepperType"]=="AdaDelta"){
+          s_=new AdaDelta(pars);
+    }
+    else if(pars["Learning"]["StepperType"]=="RMSProp"){
+          s_=new RMSProp(pars);
     }
     else{
       cout<<"StepperType not found"<<endl;

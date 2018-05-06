@@ -9,9 +9,10 @@ exact=-1.274549484318e+00*20
 
 #N=80
 # exact=-1.273321360724e+00*80
-
-while(True):
-    plt.clf()
+i=0
+while(i<1):
+#    plt.clf()
+    plt.figure()
     plt.ylabel('Energy')
     plt.xlabel('Iteration #')
 
@@ -21,7 +22,7 @@ while(True):
     evar=[]
     evarsig=[]
 
-    data=json.load(open('test.log'))
+    data=json.load(open('rms_prop_test.log'))
     for iteration in data["Output"]:
         iters.append(iteration["Iteration"])
         energy.append(iteration["Energy"]["Mean"])
@@ -38,8 +39,8 @@ while(True):
         z=np.polyfit(fitx,fity,deg=0)
         p = np.poly1d(z)
 
-        plt.xlim([nres-cut,nres])
-        maxval=np.max(energy[-cut:-1])
+        plt.xlim([0,nres])#([nres-cut,nres])
+        maxval=np.max(energy)#(energy[-cut:-1])
         plt.ylim([exact-(np.abs(exact)*0.01),maxval+np.abs(maxval)*0.01])
         error=(z[0]-exact)/-exact
         plt.gca().text(0.95, 0.8, 'Relative Error : '+"{:.2e}".format(error),
@@ -53,8 +54,10 @@ while(True):
 
 
     plt.legend(frameon=False)
-    plt.pause(1)
+#    plt.pause(1)
     # plt.draw()
+    plt.show()
+    i+=1
 
-plt.ioff()
-plt.show()
+#plt.ioff()
+#plt.show()
