@@ -22,7 +22,7 @@ while(i<1):
     evar=[]
     evarsig=[]
 
-    data=json.load(open('rms_prop_test.log'))
+    data=json.load(open('rmsprop_test.log'))
     for iteration in data["Output"]:
         iters.append(iteration["Iteration"])
         energy.append(iteration["Energy"]["Mean"])
@@ -47,7 +47,7 @@ while(i<1):
         verticalalignment='bottom', horizontalalignment='right',
         color='green', fontsize=15,transform=plt.gca().transAxes)
 
-        plt.plot(fitx,p(fitx))
+        plt.plot(fitx,p(fitx),'b')
 
     plt.errorbar(iters,energy,yerr=sigma,color='red')
     plt.axhline(y=exact, xmin=0, xmax=iters[-1], linewidth=2, color = 'k',label='Exact')

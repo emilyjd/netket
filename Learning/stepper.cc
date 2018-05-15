@@ -44,12 +44,19 @@ public:
     else if(pars["Learning"]["StepperType"]=="Momentum"){
       s_=new Momentum(pars);
     }
+    else if(pars["Learning"]["StepperType"]=="AdaGrad"){
+          s_=new AMSGrad(pars);
+    }
     else if(pars["Learning"]["StepperType"]=="AdaDelta"){
           s_=new AdaDelta(pars);
     }
     else if(pars["Learning"]["StepperType"]=="RMSProp"){
           s_=new RMSProp(pars);
     }
+    else if(pars["Learning"]["StepperType"]=="AMSGrad"){
+          s_=new AMSGrad(pars);
+    }
+
     else{
       cout<<"StepperType not found"<<endl;
       std::abort();

@@ -20,9 +20,11 @@ namespace netket{
   class Sgd;
   class AdaDelta;
   class AdaMax;
+  class AdaGrad;
   class Momentum;
   class RMSProp;
   class Rprop;
+  class AMSGrad;
   class Stepper;
   template<class Hamiltonian,class Psi,class Sampler,class Optimizer> class Sr;
   class MatrixReplacement;
@@ -36,6 +38,8 @@ namespace netket{
 #include "sgd.hh"
 #include "ada_delta.hh"
 #include "ada_max.hh"
+#include "ams_grad.hh"
+#include "rms_prop.hh"
 #include "momentum.hh"
 #include "rprop.hh"
 #include "stepper.cc"

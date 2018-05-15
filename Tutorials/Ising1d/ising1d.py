@@ -52,9 +52,9 @@ pars['Learning']={
     'NiterOpt'       : 500,
     'Diagshift'      : 0.1,
     'UseIterative'   : False,
-    'OutputFile'     : "rms_prop_test",
+    'OutputFile'     : "rmsprop_test",
     'StepperType'    : 'RMSProp',
-    'LearningRate'   : 0.1,
+    'LearningRate'   : 0.001,
 }
 
 json_file="ising1d.json"
